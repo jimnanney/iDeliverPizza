@@ -7,4 +7,7 @@ class Shift
     @date
   end
 
+  def <=>(other)
+    other.nil? ? 1 : date.compare(other.date)
+  end
 end

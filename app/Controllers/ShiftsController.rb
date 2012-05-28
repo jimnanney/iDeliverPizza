@@ -4,17 +4,20 @@ class ShiftsController < UITableViewController
   end
 
   def viewWillAppear(animated)
+    navigationController.setToolbarHidden(true, animated:true)
       navigationItem.title = "Shifts"
       navigationItem.leftBarButtonItem = editButtonItem
       navigationItem.rightBarButtonItem = UIBarButtonItem.alloc.initWithBarButtonSystemItem(UIBarButtonSystemItemAdd, target:self, action:'addShift')
+      reloadData
   end
 
   def addShift
-
+    @shifts << Shift.new(NSDate.date)
+    reloadData
   end
 
   def tableView(tableView, titleForHeaderInSection:section)
-    section == 0 ? "Summary" : "Previous Shifts"
+    section == 0 ? "Current Shift" : "Previous Shifts"
   end
 
   def numberOfSectionsInTableView(tableView)
@@ -22,31 +25,39 @@ class ShiftsController < UITableViewController
   end
 
   def tableView(tableView, numberOfRowsInSection:section)
-    section == 0 ? 1 : DataStore.shared.shifts.size
+    section == 0 ? 1 : @shifts.count
   end
 
-  CellID = 'CellIdentifier'
   def tableView(tableView, cellForRowAtIndexPath:indexPath)
     if indexPath.section > 0
-      dt = DataStore.shared.shifts[indexPath.row].date
-      #cell = tableView.dequeueReusableCellWithIdentifier(CellID) || UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:CellID)
-      cell = ShiftCell.cellForShift(dt, inTableView:tableView)
+      cell = ShiftCell.cellForShift(@shifts[indexPath.row], inTableView:tableView)
     else
-      cell = SummaryCell.cellForSummary("Summary", inTableView:tableView)
+      cell = SummaryCell.cellForSummary(@currentShift, inTableView:tableView)
     end
-    #cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator
   end
-
-#  def tableView(tableView, editingStyleForRowAtIndexPath:indexPath)
-#    UITableViewEditingStyleDelete
-#  end
 
   def tableView(tableView, canEditRowAtIndexPath:indexPath)
     indexPath.section > 0
   end
 
-#  def tableView(tableView, commitEditingStyle:editingStyle, forRowAtIndexPath:indexPath)
-#
-#  end
-#
+  def tableView(tableView, commitEditingStyle:editingStyle, forRowAtIndexPath:indexPath)
+    if (editingStyle == UITableViewCellEditingStyleDelete)
+      @shifts.delete(@shifts[indexPath.row])
+      reloadData
+    end
+  end
+
+  def tableView(tableView, didSelectRowAtIndexPath:indexPath)
+    controller = UIApplication.sharedApplication.delegate.shiftDetailsController
+    navigationController.pushViewController(controller, animated:true)
+
+    #controller.showTipsForShift(@shifts[indexPath.row])
+  end
+
+  def reloadData
+    @shifts = DataStore.shared.shifts
+    @currentShift = @shifts[0]
+    view.reloadData
+  end
+
 end

@@ -1,6 +1,6 @@
 class DataStore
   def self.shared
-    @shared ||=DataStore.new
+    @shared ||= DataStore.new
   end
 
   def shifts
@@ -14,19 +14,31 @@ class DataStore
   private
 
   def initialize
-    @shifts = [
-      Shift.new("1-18-2012"),
-      Shift.new("1-17-2012"),
-      Shift.new("1-16-2012"),
-      Shift.new("1-15-2012"),
-      Shift.new("1-14-2012"),
-      Shift.new("1-13-2012"),
-      Shift.new("1-12-2012"),
-      Shift.new("1-11-2012"),
-      Shift.new("1-10-2012"),
-      Shift.new("1-09-2012"),
-      Shift.new("1-08-2012")
-      ]
-    @tips = Array.new
+    @shifts = []
+    class << @shifts
+      def <<(other)
+        super(other)
+        # not the most efficeint to sort after each append, but for small array should be fine
+        sort_by!{|shift| shift.date.timeIntervalSince1970 * -1}
+      end
+    end
+
+    sample_shifts_data(0)
+
+    @tips = []
+    class << @tips
+      def <<(other)
+        # always prepend rather than append
+        insert(0,other)
+      end
+    end
+  end
+
+  def sort_shifts
+    @shifts.sort_by!{|shift| shift.date.timeIntervalSince1970 * -1}
+  end
+
+  def sample_shifts_data(count)
+    count.times { |n| @shifts << Shift.new(NSDate.dateWithTimeIntervalSinceNow(-86400 * n)) }
   end
 end

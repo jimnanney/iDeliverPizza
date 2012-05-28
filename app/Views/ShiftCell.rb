@@ -1,10 +1,13 @@
 class ShiftCell < UITableViewCell
   CellID = 'ShiftCell'
 
-  def self.cellForShift(summary, inTableView:tableView)
-    cell = tableView.dequeueReusableCellWithIdentifier(ShiftCell::CellID) || SummaryCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:ShiftCell::CellID)
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator
-    cell.fillWithSummary(summary, inTableView:tableView)
+  def self.cellForShift(shift, inTableView:tableView)
+    cell = tableView.dequeueReusableCellWithIdentifier(ShiftCell::CellID)
+    unless cell
+      cell = ShiftCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:ShiftCell::CellID)
+      cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator
+    end
+    cell.fillWithShift(shift, inTableView:tableView)
     cell
   end
 
@@ -15,7 +18,7 @@ class ShiftCell < UITableViewCell
     self
   end
 
-  def fillWithSummary(summary, inTableView:tableView)
-    self.textLabel.text = summary
+  def fillWithShift(shift, inTableView:tableView)
+    self.textLabel.text = StringDate.localDateAndTimeString(shift.date) unless shift.nil?
   end
 end

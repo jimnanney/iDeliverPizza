@@ -2,7 +2,10 @@ class SummaryCell < UITableViewCell
   CellID = 'SummaryCell'
 
   def self.cellForSummary(summary, inTableView:tableView)
-    cell = tableView.dequeueReusableCellWithIdentifier(SummaryCell::CellID) || SummaryCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:SummaryCell::CellID)
+    cell = tableView.dequeueReusableCellWithIdentifier(SummaryCell::CellID)
+    unless cell
+      cell = SummaryCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:SummaryCell::CellID)
+    end
     cell.fillWithSummary(summary, inTableView:tableView)
     cell
   end
@@ -15,6 +18,6 @@ class SummaryCell < UITableViewCell
   end
 
   def fillWithSummary(summary, inTableView:tableView)
-    self.textLabel.text = summary
+    self.textLabel.text = summary.nil? ? "None" : StringDate.localDateString(summary.date)
   end
 end
